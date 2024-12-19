@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="global">
+      <UniqueIdentifier>{81b06f2d-3f4b-42e3-bc73-7b186e339c50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{8741ff0d-9533-49da-92d4-440e090b3d50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\Nator">
+      <UniqueIdentifier>{1578289a-4521-40a3-a571-fc4947a57f9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\RMD">
+      <UniqueIdentifier>{215a377c-9f7c-4c06-ab44-a7fe028fc27c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\Serial">
+      <UniqueIdentifier>{c67e6f7d-ad77-4bc0-9fea-b15bddd47eab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\Galaxy">
+      <UniqueIdentifier>{7805e490-30d9-4cf9-9593-4e21b15285c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\Visual">
+      <UniqueIdentifier>{ea0ccc8f-6d8c-4674-8006-13939752673d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ErrorCode.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="LogUtil.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="RobotException.hpp">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="NatorMotor.h">
+      <Filter>lib\Nator</Filter>
+    </ClInclude>
+    <ClInclude Include="RMDMotor.h">
+      <Filter>lib\RMD</Filter>
+    </ClInclude>
+    <ClInclude Include="SerialPort.h">
+      <Filter>lib\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="GxCamera.h">
+      <Filter>lib\Galaxy</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraTop.h">
+      <Filter>lib\Galaxy</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraBot.h">
+      <Filter>lib\Galaxy</Filter>
+    </ClInclude>
+    <ClInclude Include="JointSpace.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KineHelper.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskSpace.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="D5Robot.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Visual.h">
+      <Filter>lib\Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="CVK.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="NatorMotor.cpp">
+      <Filter>lib\Nator</Filter>
+    </ClCompile>
+    <ClCompile Include="RMDMotor.cpp">
+      <Filter>lib\RMD</Filter>
+    </ClCompile>
+    <ClCompile Include="SerialPort.cpp">
+      <Filter>lib\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="GxCamera.cpp">
+      <Filter>lib\Galaxy</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraTop.cpp">
+      <Filter>lib\Galaxy</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraBot.cpp">
+      <Filter>lib\Galaxy</Filter>
+    </ClCompile>
+    <ClCompile Include="D5Robot.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Visual.cpp">
+      <Filter>lib\Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="CVK.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
