@@ -19,10 +19,11 @@
 
 ### 环境
 
-> 本库将所需使用的库文件打包，发布在 [Release]() 中，需要的可自行下载，并在 lib 目录下直接解压
+> 本库将所需使用的库文件打包，发布在 [Release](https://github.com/drawal001/D5RC_VS/releases/tag/v0.1.0) 中，需要的可自行下载，并在 lib 目录下直接解压
 
 **需要注意的是：**
 
-1. Nator 电机 SDK 需额外配置，进入 `lib/Nator/SDK1.4.12` 按指示操作。
+1. Nator 电机 SDK 需额外配置，进入 `lib/Nator/SDK1.4.12` 按指示操作
 2. 大恒相机需下载其驱动软件，[链接在此](https://www.daheng-imaging.com/downloads/)，且需要工业级以太网视觉采集卡，若出现相机可识别，但无法打开的问题，可使用大恒相机 SDK 中的`GxGigEIPConfig.exe`重新配置 IP
-3. Nator 电机与 RMD 电机驱动程序不在此获取
+3. halcon 需每月获取许可文件并更名为 **license.dat**，放置在 D5RC_VS.sln 所在的文件目录下
+4. Nator 电机与 RMD 电机驱动程序不在此获取
