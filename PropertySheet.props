@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)lib\Nator\include;$(SolutionDir)lib\VCSDK\inc;$(SolutionDir)lib\OpenCV_4_10\include;$(SolutionDir)lib\halcon\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)lib\Nator\lib;$(LibraryPath);$(SolutionDir)lib\VCSDK\lib\x64;$(SolutionDir)lib\OpenCV_4_10\x64\vc16\lib;$(SolutionDir)lib\halcon\lib</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>NTControl.lib;DxImageProc.lib;GxIAPI.lib;opencv_world4100d.lib;halcon.lib;halconc.lib;halconcpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
