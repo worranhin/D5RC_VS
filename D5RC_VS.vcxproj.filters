@@ -114,4 +114,19 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="lib\VCSDK\dll\DxImageProc.dll" />
+    <CopyFileToFolders Include="lib\VCSDK\dll\GxIAPI.dll" />
+    <CopyFileToFolders Include="lib\halcon\bin\halcon.dll" />
+    <CopyFileToFolders Include="lib\halcon\bin\halconc.dll" />
+    <CopyFileToFolders Include="lib\halcon\bin\halconcpp.dll" />
+    <CopyFileToFolders Include="lib\Nator\bin\NTControl.dll" />
+    <CopyFileToFolders Include="lib\OpenCV_4_10\x64\vc16\bin\opencv_videoio_ffmpeg4100_64.dll" />
+    <CopyFileToFolders Include="lib\OpenCV_4_10\bin\opencv_videoio_ffmpeg4100_64.dll" />
+    <CopyFileToFolders Include="lib\OpenCV_4_10\x64\vc16\bin\opencv_videoio_msmf4100_64.dll" />
+    <CopyFileToFolders Include="lib\OpenCV_4_10\x64\vc16\bin\opencv_videoio_msmf4100_64d.dll" />
+    <CopyFileToFolders Include="lib\OpenCV_4_10\x64\vc16\bin\opencv_world4100.dll" />
+    <CopyFileToFolders Include="lib\OpenCV_4_10\x64\vc16\bin\opencv_world4100d.dll" />
+    <CopyFileToFolders Include="license.dat" />
+  </ItemGroup>
 </Project>

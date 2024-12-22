@@ -4,11 +4,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)lib\Nator\include;$(SolutionDir)lib\VCSDK\inc;$(SolutionDir)lib\OpenCV_4_10\include;$(SolutionDir)lib\halcon\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)lib\Nator\lib;$(LibraryPath);$(SolutionDir)lib\VCSDK\lib\x64;$(SolutionDir)lib\OpenCV_4_10\x64\vc16\lib;$(SolutionDir)lib\halcon\lib</LibraryPath>
+    <LibraryPath>$(HALCONROOT)\lib\$(HALCONARCH);$(OPENCV_DIR)\lib;$(SolutionDir)lib\Nator\lib;$(LibraryPath);$(SolutionDir)lib\VCSDK\lib\x64</LibraryPath>
+    <ExternalIncludePath>$(OpenCV_DIR)\..\..\include;$(HALCONROOT)\include\halconcpp;$(HALCONROOT)\include;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>NTControl.lib;DxImageProc.lib;GxIAPI.lib;opencv_world4100d.lib;halcon.lib;halconc.lib;halconcpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>NTControl.lib;DxImageProc.lib;GxIAPI.lib;opencv_world4100.lib;halcon.lib;halconcpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

@@ -606,9 +606,10 @@ void Test_halcon() {
     using namespace HalconCpp;
     HObject ho_Image;
     HTuple hv_WindowID;
+    HTuple Row, Column, Button;
 
     // 图像文件路径
-    HTuple hv_Filename = "C:/Users/Administrator/Desktop/test/topC_1733978331.png";
+    HTuple hv_Filename = "D:/Documents/SCUT/D5RC_VS/image/12_12/topC_1733978331.png";
 
     // 尝试读取图像
     try {
@@ -619,6 +620,7 @@ void Test_halcon() {
 
         // 显示图像
         DispImage(ho_Image, hv_WindowID);
+        GetMbutton(hv_WindowID, &Row, &Column, &Button);
 
         // 等待用户按键
         std::cout << "Press Enter to exit..." << std::endl;
