@@ -10,6 +10,9 @@
  *
  */
 #include "D5Robot.h"
+#include <stdlib.h>
+#include <string.h>
+#include <msclr/marshal.h>
 
 namespace D5R {
 
@@ -17,16 +20,20 @@ namespace D5R {
 
     D5Robot::D5Robot() {}
 
-    D5Robot::D5Robot(
-        const char* serialPort,
-        std::string natorID,
-        uint8_t topRMDID,
-        uint8_t botRMDID,
-        std::string topCameraID) {
-        InitNator(natorID);
-        InitRMD(serialPort, topRMDID, botRMDID);
-        // InitCamera(topCameraID);
+    D5Robot::D5Robot(const char* serialPort, String^ natorID,
+        uint8_t topRMDID, uint8_t botRMDID) {
+        throw gcnew System::NotImplementedException();
     }
+
+    //D5Robot::D5Robot(
+    //    const char* serialPort,
+    //    const String^ natorID,
+    //    uint8_t topRMDID,
+    //    uint8_t botRMDID) {
+    //    InitNator(natorID);
+    //    InitRMD(serialPort, topRMDID, botRMDID);
+    //    // InitCamera(topCameraID);
+    //}
     D5Robot::~D5Robot() {
         if (topCamera != nullptr) {
             delete topCamera;
@@ -38,8 +45,14 @@ namespace D5R {
         }
     }
 
-    void D5Robot::InitNator(std::string natorID) {
-        natorMotor = new NatorMotor(natorID);
+    void D5Robot::InitNator(String^ natorID) {
+        using namespace msclr::interop;
+        
+        marshal_context^ context = gcnew marshal_context();
+        String^ from = natorID;
+        const char* str = context->marshal_as<const char*>(natorID);
+        this->natorMotor = new NatorMotor(std::string(str));
+        delete context;
     }
 
     /**
@@ -58,12 +71,22 @@ namespace D5R {
         botRMDMotor = new RMDMotor(_port->GetHandle(), botRMDID);
     }
 
-    void D5Robot::InitTopCamera(std::string topCameraId) {
-        topCamera = new CameraTop(topCameraId);
+    void D5Robot::InitTopCamera(String^ topCameraId) {
+		using namespace msclr::interop;
+
+        marshal_context^ context = gcnew marshal_context();
+		auto str = context->marshal_as<const char*>(topCameraId);
+        topCamera = new CameraTop(std::string(str));
+        delete context;
     }
 
-    void D5Robot::InitBotCamera(std::string botCameraId) {
-        botCamera = new CameraBot(botCameraId);
+    void D5Robot::InitBotCamera(String^ botCameraId) {
+        using namespace msclr::interop;
+
+        marshal_context^ context = gcnew marshal_context();
+        auto str = context->marshal_as<const char*>(botCameraId);
+        botCamera = new CameraBot(std::string(str));
+        delete context;
     }
 
     /**

@@ -32,6 +32,8 @@
     <ProjectGuid>{d9c1f4a3-3143-4c0b-b642-cb62b3da636f}</ProjectGuid>
     <RootNamespace>D5RCVS</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.10240.0</WindowsTargetPlatformMinVersion>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -54,10 +56,11 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>NetCore</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dll|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -108,6 +111,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)lib\Nator\include;$(ProjectDir)lib\VCSDK\inc;$(ProjectDir)lib\OpenCV_4_10\include;$(ProjectDir)lib\halcon\include</IncludePath>
     <LibraryPath>$(ProjectDir)lib\Nator\lib;$(LibraryPath);$(ProjectDir)lib\VCSDK\lib\x64;$(ProjectDir)lib\OpenCV_4_10\x64\vc16\lib;$(ProjectDir)lib\halcon\lib</LibraryPath>
+    <CopyLocalProjectReference>true</CopyLocalProjectReference>
+    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dll|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)lib\Nator\include;$(ProjectDir)lib\VCSDK\inc;$(ProjectDir)lib\OpenCV_4_10\include;$(ProjectDir)lib\halcon\include</IncludePath>

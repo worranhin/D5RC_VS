@@ -20,9 +20,11 @@
 #include "LogUtil.h"
 #include "RobotException.hpp"
 
+using namespace System;
+
 namespace D5R {
 
-    class D5Robot {
+    public ref class D5Robot {
     private:
         SerialPort* _port; // 该声明必须在 RMDMotor 声明之前
 
@@ -34,14 +36,29 @@ namespace D5R {
         CameraBot* botCamera = nullptr;
 
         D5Robot();
-        D5Robot(const char* serialPort, std::string natorID = NatorId,
-            uint8_t topRMDID = 1, uint8_t botRMDID = 2,
-            std::string topCameraID = TopCameraId);
+        D5Robot(const char* serialPort, String^ natorID,
+            uint8_t topRMDID, uint8_t botRMDID);
         ~D5Robot();
-        void InitNator(std::string natorID = NatorId);
-        void InitRMD(const char* portName, uint8_t topRMDID = 1, uint8_t botRMDID = 2);
-        void InitTopCamera(std::string topCameraId = TopCameraId);
-        void InitBotCamera(std::string botCameraId = BotCameraId);
+        void InitNator(String^ natorID);
+        void InitNator() {
+            InitNator(_natorId);
+        }
+
+        void InitRMD(const char* portName, uint8_t topRMDID, uint8_t botRMDID);
+        void InitRMD(const char* portName) {
+            InitRMD(portName, 1, 2);
+        }
+
+        void InitTopCamera(String^ topCameraId);
+        void InitTopCamera() {
+			InitTopCamera(_topCameraId);
+        }
+
+        void InitBotCamera(String^ botCameraId);
+        void InitBotCamera() {
+            InitBotCamera(_bottomCameraId);
+        }
+
         void SetZero();
         void Stop();
         void JointsMoveAbsolute(const Joints j);
@@ -53,9 +70,9 @@ namespace D5R {
         Joints GetCurrentJoint();
         TaskSpace GetCurrentPose();
 
-    private:
-        inline static const std::string NatorId = "usb:id:2250716012";
-        inline static const std::string TopCameraId = "00-21-49-03-4D-95";
-        inline static const std::string BotCameraId = "00-21-49-03-4D-94";
+    public:
+        static String^ _natorId = gcnew String("usb:id:2250716012");
+        static String^ _topCameraId = gcnew String("00-21-49-03-4D-95");
+        static String^ _bottomCameraId = gcnew String ("00-21-49-03-4D-94");
     };
 } // namespace D5R

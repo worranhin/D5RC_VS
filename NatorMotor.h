@@ -17,6 +17,8 @@
 #include <string>
 #include <windows.h>
 
+using namespace System;
+
 namespace D5R {
     struct NTU_Point {
         int x; // µ¥Î»: nm

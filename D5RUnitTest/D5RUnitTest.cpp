@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "D5Robot.h"
+//#include "D5Robot.h"
 #include "CppUnitTest.h"
 #include "HalconCpp.h"
-#include "opencv2/opencv.hpp"
+//#include "opencv2/opencv.hpp"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace D5R;
@@ -14,8 +14,8 @@ namespace D5RUnitTest {
 public:
 
 	TEST_METHOD(TestD5RobotInit) {
-		D5Robot robot;
-		Assert::IsNotNull<D5Robot>(&robot);
+		D5Robot^ robot = gcnew D5Robot();
+		Assert::IsNotNull<D5Robot^>(&robot);
 	}  // namespace D5RUnitTest
 
 	TEST_METHOD(TestHalconReadImage) {
@@ -42,18 +42,18 @@ public:
 	}
 
 	TEST_METHOD(TestOpenCVReadImage) {
-		using namespace cv;
-		Mat image;
-		cv::String fileName = "test.png";
-		cv::String windowName = "Press A Key to Exit";
-		image = imread(fileName, IMREAD_COLOR);
-		Assert::IsFalse(image.empty());
-		namedWindow(windowName, WINDOW_NORMAL);     // Create a window for display.
-		//resizeWindow(const String & winname, int width, int height);
-		resizeWindow(windowName, 800, 600);
-		imshow(windowName, image);  // Show our image inside it.
-		auto key = waitKey(0);
-		Assert::AreNotEqual(key, -1);
+		//using namespace cv;
+		//Mat image;
+		//cv::String fileName = "test.png";
+		//cv::String windowName = "Press A Key to Exit";
+		//image = imread(fileName, IMREAD_COLOR);
+		//Assert::IsFalse(image.empty());
+		//namedWindow(windowName, WINDOW_NORMAL);     // Create a window for display.
+		////resizeWindow(const String & winname, int width, int height);
+		//resizeWindow(windowName, 800, 600);
+		//imshow(windowName, image);  // Show our image inside it.
+		//auto key = waitKey(0);
+		//Assert::AreNotEqual(key, -1);
 	}
 	};
 

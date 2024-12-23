@@ -2,3 +2,6 @@
 lib/*
 D5RC_VS
 x64
+TestD5RobotWrapper/bin
+TestD5RobotWrapper/obj
+obj
