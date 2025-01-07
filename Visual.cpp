@@ -631,3 +631,44 @@ void Test_halcon() {
         std::cerr << "Error reading image: " << exception.ErrorMessage() << std::endl;
     }
 }
+
+/**
+ * @brief 将OpenCV Mat格式的图片转换成Halcon HObject格式
+ * @param img 
+ * @return 
+ */
+HalconCpp::HObject Mat2HImage(cv::Mat img) {
+    if (img.empty() || img.channels() != 1) {
+        std::cout << "Error, invaid img" << std::endl;
+        return {};
+    }
+
+    int width = img.cols, height = img.rows;
+    HalconCpp::HObject ho_img;
+    HalconCpp::GenImage1(&ho_img, "byte", width, height, (const HalconCpp::HTuple&)img.data);
+    return ho_img;
+}
+
+/**
+ * @brief 将Halcon HObject格式转换为OpenCV Mat格式
+ * @param img 
+ * @return 
+ */
+cv::Mat HImage2Mat(HalconCpp::HObject img) {
+    HalconCpp::HTuple channels;
+    HalconCpp::CountChannels(img, &channels);
+    if (channels.I() != 1) {
+        std::cout << "Error, Invaid img type" << std::endl;
+        return {};
+    }
+
+    HalconCpp::HTuple hv_Pointer, hv_type, width, height;
+    HalconCpp::GetImagePointer1(img, &hv_Pointer, &hv_type, &width, &height);
+    int w = width.I();
+    int h = height.I();
+    int size = w * h;
+    cv::Mat cv_img = cv::Mat::zeros(h, w, CV_8UC1);
+    memcpy(cv_img.data, (void*)(hv_Pointer.L()), size);
+    return cv_img;
+    
+}

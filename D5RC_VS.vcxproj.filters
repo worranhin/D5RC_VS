@@ -78,8 +78,8 @@
     <ClInclude Include="Visual.h">
       <Filter>lib\Visual</Filter>
     </ClInclude>
-    <ClInclude Include="CVK.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="VC.h">
+      <Filter>lib\Visual</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -110,8 +110,8 @@
     <ClCompile Include="Visual.cpp">
       <Filter>lib\Visual</Filter>
     </ClCompile>
-    <ClCompile Include="CVK.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="VC.cpp">
+      <Filter>lib\Visual</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

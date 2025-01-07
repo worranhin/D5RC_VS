@@ -16,9 +16,12 @@
 #include "NatorMotor.h"
 #include "RMDMotor.h"
 #include "SerialPort.h"
+#include "halconcpp/HalconCpp.h"
 
 #include "LogUtil.h"
 #include "RobotException.hpp"
+#include "Visual.h"
+#include "VC.h"
 
 namespace D5R {
 

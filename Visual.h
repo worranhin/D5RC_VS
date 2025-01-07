@@ -15,8 +15,6 @@
  #include <halconcpp/HalconCpp.h>
 
 void Test_GetAndSaveImg(D5R::CameraTop* topCamera);
-
-
 void Test_GetAndSaveImg(D5R::CameraBot* botCamera);
 void Test_GetPosTemplate(cv::Mat img);
 void Test_GetROI(cv::Mat img, cv::Mat temp);
@@ -29,3 +27,6 @@ void Test_GetBotCameraPosLine(cv::Mat img);
 void Test_GetClampTemplate_BotC(cv::Mat img);
 double Test_GetFallingHeight(cv::Mat img);
 void Test_halcon();
+
+HalconCpp::HObject Mat2HImage(cv::Mat img);
+cv::Mat HImage2Mat(HalconCpp::HObject img);

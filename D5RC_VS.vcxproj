@@ -71,8 +71,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)lib\Nator\include;$(ProjectDir)lib\VCSDK\inc;$(ProjectDir)lib\OpenCV_4_10\include;$(ProjectDir)lib\halcon\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)lib\Nator\lib;$(LibraryPath);$(ProjectDir)lib\VCSDK\lib\x64;$(ProjectDir)lib\OpenCV_4_10\x64\vc16\lib;$(ProjectDir)lib\halcon\lib</LibraryPath>
+    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)lib\Nator\include;$(ProjectDir)lib\VCSDK\inc;$(ProjectDir)lib\OpenCV_4_10\include;$(ProjectDir)lib\halcon\include</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -136,7 +137,6 @@
   <ItemGroup>
     <ClInclude Include="CameraBot.h" />
     <ClInclude Include="CameraTop.h" />
-    <ClInclude Include="CVK.h" />
     <ClInclude Include="D5Robot.h" />
     <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="GxCamera.h" />
@@ -148,18 +148,19 @@
     <ClInclude Include="RobotException.hpp" />
     <ClInclude Include="SerialPort.h" />
     <ClInclude Include="TaskSpace.hpp" />
+    <ClInclude Include="VC.h" />
     <ClInclude Include="Visual.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CameraBot.cpp" />
     <ClCompile Include="CameraTop.cpp" />
-    <ClCompile Include="CVK.cpp" />
     <ClCompile Include="D5Robot.cpp" />
     <ClCompile Include="GxCamera.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="NatorMotor.cpp" />
     <ClCompile Include="RMDMotor.cpp" />
     <ClCompile Include="SerialPort.cpp" />
+    <ClCompile Include="VC.cpp" />
     <ClCompile Include="Visual.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

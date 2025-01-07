@@ -2,7 +2,7 @@
 #include "KineHelper.hpp"
 #include "RobotException.hpp"
 #include "Visual.h"
-#include "CVK.h"
+
 
 
 const std::string port = "\\\\.\\COM16";
