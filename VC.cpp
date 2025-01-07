@@ -18,10 +18,10 @@ VC::VC() {
 	HalconCpp::ReadShapeModel("./model/jawTemplate/shm/Temp_DR.shm", &_jawMid.temp_dr);
 
 	// 钳口库定位模板
-	_posTemplate_2 = cv::imread("./model/posTemplate/PosTemple_rect.png", 0);
+	_posTemplate_2 = cv::imread("./model/posTemplate/PosTemple_2.png", 0);
 
 	// 粗定位点，相对于_roiPos而言
-	_roughPosPoint = cv::Point2f(435, 1050);
+	_roughPosPoint = cv::Point2f(450, 1050);
 
 
 	// botC
@@ -50,8 +50,11 @@ HalconCpp::HObject VC::Mat2HImage(cv::Mat img) {
 	}
 
 	int width = img.cols, height = img.rows;
+	uchar* temp = new uchar[height * width];
+	memcpy(temp, img.data, height * width);
 	HalconCpp::HObject ho_img;
-	HalconCpp::GenImage1(&ho_img, "byte", width, height, (const HalconCpp::HTuple&)img.data);
+	HalconCpp::GenImage1(&ho_img, "byte", width, height, (Hlong)(temp));
+	delete[] temp;
 	return ho_img;
 }
 /**
@@ -92,6 +95,10 @@ void VC::JawLibSegmentation(cv::Mat img, int index) {
 	case 2:
 		cv::matchTemplate(img, _posTemplate_2, result, cv::TM_SQDIFF_NORMED);
 		cv::minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc);
+		// 测试匹配效果
+		//cv::rectangle(img, minLoc, cv::Point(minLoc.x + 280, minLoc.y + 280), cv::Scalar(0), 4);
+		//cv::imshow("test", img);
+		//cv::waitKey(0);
 		_roiPos = cv::Point2f(minLoc.x - 300.0f, minLoc.y + 300.0f);
 		break;
 	case 3:
@@ -129,7 +136,7 @@ std::vector<cv::Point2f> VC::SIFT(cv::Mat img, Models m) {
 		break;
 	}
 	// ROI
-	cv::Rect roi = cv::Rect2f(_roiPos, cv::Size2f(850.0f, 2046.0f - _roiPos.y));
+	cv::Rect roi = cv::Rect(static_cast<cv::Point>(_roiPos), cv::Size(850, 2046 - static_cast<int>(_roiPos.y)));
 	cv::Mat ROI = img(roi).clone();
 
 	// SIFT特征点
@@ -151,6 +158,12 @@ std::vector<cv::Point2f> VC::SIFT(cv::Mat img, Models m) {
 			goodMatches.push_back(knn_matche[0]);
 		}
 	}
+	// 显示匹配结果
+	//cv::Mat img_matches_res;
+	//cv::drawMatches(model, keyPoints_Model, ROI, keyPoints_Img, goodMatches, img_matches_res, cv::Scalar::all(-1),
+	//	cv::Scalar::all(-1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+	//cv::imshow("test", img_matches_res);
+	//cv::waitKey(0);
 	if (goodMatches.size() < 8) {
 		std::cerr << "Failed to SIFT" << std::endl;
 		return {};
@@ -162,11 +175,19 @@ std::vector<cv::Point2f> VC::SIFT(cv::Mat img, Models m) {
 	}
 	cv::Mat homography = cv::findHomography(model_P, img_P, cv::RANSAC);
 	std::vector<cv::Point2f> pst;
+	std::vector<cv::Point2f> pst_Global;
 	cv::perspectiveTransform(modelPosition, pst, homography);
-	for (auto p : pst) {
-		p += _roiPos;
+	for (auto& p : pst) {
+		p.x += _roiPos.x;
+		p.y += _roiPos.y;
+		pst_Global.push_back(p);
 	}
-	return pst;
+	// 测试匹配效果
+	//cv::line(img, pst_Global[0], pst_Global[1], cv::Scalar(0), 4);
+	//cv::imshow("test", img);
+	//cv::waitKey(0);
+	return pst_Global;
+
 }
 /**
  * @brief 更新平台水平线
@@ -175,21 +196,29 @@ std::vector<cv::Point2f> VC::SIFT(cv::Mat img, Models m) {
  */
 void VC::GetHorizontalLine(cv::Mat img, int index) {
 	// 将钳口台下半部分遮住，防止干扰，具体使用根据钳口台与相机高度而定
-	cv::Point2f roiPos(200, 1700);
-	cv::Rect roi = cv::Rect(roiPos, cv::Size(2200, 348));
+	cv::Point2f roiPos(200, 1500);
+	cv::Rect roi = cv::Rect(roiPos, cv::Size(2200, 548));
 	cv::Mat ROI = img(roi).clone();
 
 	// 图像处理
-	cv::Mat bin;
-	cv::threshold(ROI, bin, 50, 255, cv::THRESH_BINARY);
 	cv::Mat gauss;
-	cv::GaussianBlur(bin, gauss, cv::Size(5, 5), 25);
-	cv::Mat dst, edge;
-	cv::Scharr(gauss, dst, CV_32F, 1, 0);
-	cv::convertScaleAbs(dst, edge);
+	cv::GaussianBlur(ROI, gauss, cv::Size(5, 5), 25);
+	cv::Mat bin;
+	cv::threshold(gauss, bin, 180, 255, cv::THRESH_BINARY);
+	cv::Mat edge;
+	cv::Canny(bin, edge, 50, 150);
+	
+	//// 测试效果
+	//cv::imshow("test", ROI);
+	//cv::waitKey(0);
+	//cv::imshow("test", bin);
+	//cv::waitKey(0);
+	//cv::imshow("test", edge);
+	//cv::waitKey(0);
+
 	std::vector<cv::Vec4f> lines;
 	cv::HoughLinesP(edge, lines, 1, CV_PI / 180, 200, 500, 300);
-
+	std::cout << lines.size() << std::endl;
 	// 最小二乘拟合
 	int n = lines.size() * 2;
 	float sum_x = 0, sum_y = 0, sum_xy = 0, sum_x2 = 0;
@@ -198,6 +227,7 @@ void VC::GetHorizontalLine(cv::Mat img, int index) {
 		sum_y += (line[1] + line[3] + 2 * roiPos.y);
 		sum_xy += ((line[0] + roiPos.x) * (line[1] + roiPos.y) + (line[2] + roiPos.x) * (line[3] + roiPos.y));
 		sum_x2 += ((line[0] + roiPos.x) * (line[0] + roiPos.x) + (line[2] + roiPos.x) * (line[2] + roiPos.x));
+		
 	}
 	float mean_x = sum_x / n;
 	float mean_y = sum_y / n;
@@ -205,6 +235,14 @@ void VC::GetHorizontalLine(cv::Mat img, int index) {
 	if (index == 1) {
 		_jawLibLine_a = (sum_xy - n * mean_x * mean_y) / (sum_x2 - n * mean_x * mean_x);
 		_jawLibLine_b = (mean_y - _jawLibLine_a * mean_x);
+
+		//// 测试拟合效果
+		//cv::line(img, cv::Point2f(50, 50 * _jawLibLine_a + _jawLibLine_b), 
+		//	cv::Point2f(2000, 2000 * _jawLibLine_a + _jawLibLine_b), cv::Scalar(0), 4);
+		//cv::namedWindow("a", cv::WINDOW_NORMAL);
+		//cv::resizeWindow("a", cv::Size(1295, 1024));
+		//cv::imshow("a", img);
+		//cv::waitKey(0);
 	}
 	else {
 		_ringLibLine_a = (sum_xy - n * mean_x * mean_y) / (sum_x2 - n * mean_x * mean_x);
@@ -239,6 +277,15 @@ double VC::GetVerticalDistance(cv::Mat img, int index) {
 			_clampBot.pos[i].y - minLoc_.y + b) / sqrt(a * a + 1));
 	}
 	distance /= _clampBot.pos.size();
+	// 测试效果
+	//cv::rectangle(img, minLoc_, cv::Point2f(minLoc_.x + _clampBot.model.size().width, 
+	//	minLoc_.y + _clampBot.model.size().height), cv::Scalar(255), 4);
+	//cv::line(img, cv::Point2f(50, 50 * a + b), 
+	//	cv::Point2f(2000, 2000 * a + b), cv::Scalar(0), 4);
+	//cv::namedWindow("a", cv::WINDOW_NORMAL);
+	//cv::resizeWindow("a", cv::Size(1295, 1024));
+	//cv::imshow("a", img);
+	//cv::waitKey(0);
 	return -distance * _mapParam + 0.3;
 
 }

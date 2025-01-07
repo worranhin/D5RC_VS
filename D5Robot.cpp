@@ -205,9 +205,9 @@ namespace D5R {
 		if (!topCamera) {
 			throw RobotException(ErrorCode::D5RCameraNotInitialized, "topCamera is not initialized");
 		}
-		if (!botCamera) {
-			throw RobotException(ErrorCode::D5RCameraNotInitialized, "botCamera is not initialized");
-		}
+		//if (!botCamera) {
+		//	throw RobotException(ErrorCode::D5RCameraNotInitialized, "botCamera is not initialized");
+		//}
 		// 设置窗口  测试时使用
 		cv::namedWindow("test", cv::WINDOW_NORMAL);
 		cv::resizeWindow("test", cv::Size(1300, 1000));
@@ -237,11 +237,14 @@ namespace D5R {
 		topCamera->Read(img);
 		HalconCpp::HObject ho_img = vc.Mat2HImage(img);
 
+		// 获取对应钳口库ROI区域
+		vc.JawLibSegmentation(img, 2);
+
 		// 第一次匹配钳口
 		HalconCpp::HObject ho_init_search_rect, ho_ImageReduced;
 		HalconCpp::HTuple hv_Row_DL, hv_Col_DL, hv_Angle_DL, hv_Score_DL;
-		HalconCpp::HTuple hv_Row_DR, hv_Col_DR, hv_Angle_DR, hv_Score_DR;
-		HalconCpp::GenRectangle1(&ho_init_search_rect, 600, 900, 1500, 1500);
+		HalconCpp::HTuple hv_Row_DR, hv_Col_DR, hv_Angle_DR, hv_Score_DR;//_roiPos, cv::Size2f(850.0f, 2046.0f - _roiPos.y
+		HalconCpp::GenRectangle1(&ho_init_search_rect, vc.GetROIPos().y, vc.GetROIPos().x, 1500, vc.GetROIPos().x + 850);
 		HalconCpp::ReduceDomain(ho_img, ho_init_search_rect, &ho_ImageReduced);
 		HalconCpp::FindShapeModel(ho_ImageReduced, vc.GetJaw().temp_dl, hv_start, hv_range, 0.8, 1, 0.5,
 			(HalconCpp::HTuple("least_squares").Append("max_deformation 2")), 0, 0.9, &hv_Row_DL,
@@ -260,10 +263,9 @@ namespace D5R {
 
 		HalconCpp::HTuple hv_Angle = (hv_Last_Angle_DR + hv_Last_Angle_DL) / 2;
 		HalconCpp::HTuple hv_Row = (hv_Last_Row_DL + hv_Last_Row_DR) * 0.5 - 150;
-		HalconCpp::HTuple hv_Col = (hv_Last_Col_DL + hv_Last_Col_DR) * 0.5;
+		HalconCpp::HTuple hv_Col = hv_Last_Col_DL * 0.49 + hv_Last_Col_DR * 0.51;
 
-		// 获取对应钳口库ROI区域
-		vc.JawLibSegmentation(img, 2);
+
 		// 获取夹钳位置信息
 		std::vector<cv::Point2f> clampPos = vc.SIFT(img, Models::CLAMP);
 		float clampAngle = static_cast<float>(atan2f(clampPos[0].y - clampPos[1].y, clampPos[0].x - clampPos[1].x) * (-180) / CV_PI);
@@ -274,16 +276,23 @@ namespace D5R {
 						  (clampAngle - hv_Angle.D() * 180 / CV_PI - 90) };
 		JointSpace jError{};
 		while (abs(pError.Px) > 0.1 || abs(pError.Py) > 0.1 || abs(pError.Rz) > 0.1) {
+			// 绘制识别效果
+			cv::Point2f h_1(hv_Col.D(), hv_Row.D());
+			int h_2_x = static_cast<int>(h_1.x + 100 * cos(hv_Angle.D() + CV_PI / 2));
+			int h_2_y = static_cast<int>(h_1.y + 100 * sin(hv_Angle.D() + CV_PI / 2));
+			cv::line(img, h_1, cv::Point(h_2_x, h_2_y), cv::Scalar(0), 4);
+			cv::line(img, clampPos[0], clampPos[1], cv::Scalar(0), 4);
 			// 测试时的显示
 			cv::imshow("test", img);
 			cv::waitKey(0);
 
-			pError.Px = 0.4 * pError.Px;
-			pError.Rz = -0.5 * pError.Rz;
-			pError.Py = 0.4 * pError.Py;
+			pError.Px = 0.8 * pError.Px;
+			pError.Rz = -0.6 * pError.Rz;
+			pError.Py = 0.8 * pError.Py;
+			int n = static_cast<int>(std::max(abs(pError.Px), abs(pError.Py)) / 0.01);
 			jError = KineHelper::InverseDifferential(pError, GetCurrentPose());
 			JointsMoveRelative(jError.ToControlJoint());
-			Sleep(500);
+			Sleep(20 * n + 250);
 			topCamera->Read(img);
 			clampPos = vc.SIFT(img, Models::CLAMP);
 			clampAngle = static_cast<float>(atan2f(clampPos[0].y - clampPos[1].y, clampPos[0].x - clampPos[1].x) * (-180) / CV_PI);
@@ -293,6 +302,7 @@ namespace D5R {
 					   (clampAngle - hv_Angle.D() * 180 / CV_PI - 90) };
 		}
 
+
 		cv::Mat img_2;
 		botCamera->Read(img_2);
 		// 更新水平线
@@ -300,7 +310,12 @@ namespace D5R {
 		// 下移
 		double h = vc.GetVerticalDistance(img_2, 1);
 		JointsMoveRelative({ 0, 0, 0, int(-h * 1000000), 0 });
-		Sleep(1000);
+		Sleep(2000);
+
+		botCamera->Read(img_2);
+		cv::imshow("test", img_2);
+		cv::waitKey(0);
+		//return;
 
 		// 插入
 		// 定义后退标志 
@@ -310,28 +325,35 @@ namespace D5R {
 					0, 0,
 				   (clampAngle - hv_Angle.D() * 180 / CV_PI - 90) };
 		while (abs(pError.Px) > 0.1 || abs(pError.Py) > 0.1 || abs(pError.Rz) > 0.1) {
+			// 绘制识别效果
+			cv::Point2f h_1(hv_Col.D(), hv_Row.D());
+			int h_2_x = static_cast<int>(h_1.x - 100 * cos(hv_Angle.D() + CV_PI / 2));
+			int h_2_y = static_cast<int>(h_1.y - 100 * sin(hv_Angle.D() + CV_PI / 2));
+			cv::line(img, h_1, cv::Point(h_2_x, h_2_y), cv::Scalar(0), 4);
+			cv::line(img, clampPos[0], clampPos[1], cv::Scalar(0), 4);
 			// 测试时的显示
 			cv::imshow("test", img);
 			cv::waitKey(0);
 
 			if (flag != 2) {
-				pError.Px = 0.2 * pError.Px;
-				pError.Rz = -0.3 * pError.Rz;
-				pError.Py = 0.2 * pError.Py;
+				pError.Px = 0.4 * pError.Px;
+				pError.Rz = -0.5 * pError.Rz;
+				pError.Py = 0.8 * pError.Py;
 				jError = KineHelper::InverseDifferential(pError, GetCurrentPose());
-				JointsMoveRelative({ (int)jError.R1 * 100,(int)jError.P2 * 1000000, 0,0,0 });
+				JointsMoveRelative({ static_cast<int>(jError.R1 * 100), 
+					static_cast<int>(jError.P2 * 1000000), 0, 0, 0 });
 
 				const int stepLength = 1000; // nm
-				int n = pError.Px * 1000000 / stepLength;
+				int n = jError.P3 * 1000000 / stepLength;
 				for (int i = 0; i < n; ++i) {
-					NT_GotoPositionRelative_S(natorMotor->GetHandle(), NTU_AXIS_X, stepLength, 0);
+					NT_GotoPositionRelative_S(natorMotor->GetHandle(), NTU_AXIS_Y, stepLength, 0);
 					Sleep(20);
 				}
-				Sleep(100);
+				Sleep(200);
 			}
 			else {
 				JointsMoveRelative({ 0,0,-500000,0,0 });
-				Sleep(200);
+				Sleep(1000);
 			}
 
 			topCamera->Read(img);
@@ -394,7 +416,7 @@ namespace D5R {
 			}
 			hv_Angle = (hv_Last_Angle_DR + hv_Last_Angle_DL) / 2;
 			hv_Row = (hv_Last_Row_DL + hv_Last_Row_DR) * 0.5 - 150;
-			hv_Col = (hv_Last_Col_DL + hv_Last_Col_DR) * 0.5;
+			hv_Col = hv_Last_Col_DL * 0.45 + hv_Last_Col_DR * 0.55;
 			// 定位夹钳
 			clampPos = vc.SIFT(img, Models::CLAMP);
 			clampAngle = static_cast<float>(atan2f(clampPos[0].y -

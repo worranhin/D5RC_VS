@@ -25,12 +25,13 @@ void Test_GetAndSaveImg(D5R::CameraTop* topCamera) {
     while (topCamera->Read(img_top)) {
         // cv::line(img_top, cv::Point(100, 1620), cv::Point(1800, 1620), cv::Scalar(0), 2);
         cv::imshow(win_name, img_top);
-        if (cv::waitKey(1) == 27) {
+		int key = cv::waitKey(1);
+        if (key == 27) {
             break;
         }
-        if (cv::waitKey(1) == 32) {
+        if (key == 32) {
             std::string filename =
-                "./image/12_12/topC_" + std::to_string(time(&t)) + ".png";
+                "./image/1_7/topC_" + std::to_string(time(&t)) + ".png";
             cv::imwrite(filename, img_top);
             // std::cout << count++ << std::endl;
             continue;
@@ -52,12 +53,13 @@ void Test_GetAndSaveImg(D5R::CameraBot* botCamera) {
 
         // cv::line(img_bot, cv::Point(100, 1600), cv::Point(1800, 1600), cv::Scalar(0), 2);
         cv::imshow(win_name, img_bot);
-        if (cv::waitKey(1) == 27) {
+        int key = cv::waitKey(1);
+        if (key == 27) {
             break;
         }
-        if (cv::waitKey(1) == 32) {
+        if (key == 32) {
             std::string filename =
-                "./image/12_12/botC_" + std::to_string(time(&t)) + ".png";
+                "./image/1_7/botC_" + std::to_string(time(&t)) + ".png";
             cv::imwrite(filename, img_bot);
             // std::cout << count++ << std::endl;
             continue;
@@ -72,14 +74,14 @@ void Test_GetAndSaveImg(D5R::CameraBot* botCamera) {
  * @param img ÊäÈëÍ¼Ïñ
  */
 void Test_GetPosTemplate(cv::Mat img) {
-    cv::Rect roi(790, 130, 280, 280);
+    cv::Rect roi(1040, 170, 280, 280);
     cv::Mat ROI = img(roi).clone();
     cv::rectangle(img, roi, cv::Scalar(0, 0, 255), 4);
     cv::imshow(win_name, img);
     cv::waitKey(0);
     cv::imshow(win_name, ROI);
     cv::waitKey(0);
-    cv::imwrite("../test/debug/image/PosTemple.png", ROI);
+    cv::imwrite("./model/temp_res/PosTemple_2.png", ROI);
 }
 
 /**

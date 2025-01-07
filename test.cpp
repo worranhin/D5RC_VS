@@ -12,15 +12,16 @@ int main() {
     std::cout << "Hello Robot!" << std::endl;
      D5R::D5Robot robot;
 
-    // robot.InitNator();
+     robot.InitNator();
 
-    // robot.InitRMD(port.c_str());
+     robot.InitRMD(port.c_str());
 
-    // robot.InitTopCamera();
+     robot.InitTopCamera();
 
-    // robot.InitBotCamera();
+     robot.InitBotCamera();
 
-    // robot.JointsMoveAbsolute({0, 0, 7500000, 5000000, 0});
+     //robot.JointsMoveAbsolute({0, 0, 7500000, 5000000, 0});
+      //robot.JointsMoveAbsolute({0,  0, 0,5000000, 0});
     // robot.JointsMoveRelative({0, 0, 1000000, 0, 0});
     // robot.JointsMoveAbsolute({0, 0, 7500000, 0, 0});
 
@@ -31,8 +32,12 @@ int main() {
      //cvk->GotoMaterialPlatform();
 
 
-
-     //cv::Mat img = cv::imread("./image/12_12/topC_1733978331.png");
+     
+  //   cv::Mat img = cv::imread("./image/1_7/botC_1736238491.png", 0);
+	 //VC vc;
+	 //vc.GetHorizontalLine(img, 1);
+  //   double h = vc.GetVerticalDistance(img, 1);
+	 //std::cout << h << std::endl;
      //// Test_GetJawCircleCenter(img);
      //if (img.empty()) {
      //    std::cerr << "error" << std::endl;
@@ -41,12 +46,13 @@ int main() {
      //cv::imshow("ssdf", img);
      //cv::waitKey(0);
 
-     Test_halcon();
+  //   cv::Mat img;
+	 //robot.topCamera->Read(img);
+	 //Test_GetPosTemplate(img);
+     robot.VCJawChange();
 
-    // robot.VCJawChange();
-
-    // Test_GetAndSaveImg(robot.topCamera);
-    // Test_GetAndSaveImg(robot.botCamera);
+     //Test_GetAndSaveImg(robot.topCamera);
+     //Test_GetAndSaveImg(robot.botCamera);
     // cv::Mat img = cv::imread("../image/12_10/topC_404.png");
     // Test_Deformation_SURF(img);
 
