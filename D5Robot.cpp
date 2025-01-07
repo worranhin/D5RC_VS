@@ -221,8 +221,8 @@ namespace D5R {
 		HalconCpp::HTuple hv_start, hv_range, hv_Height_DT, hv_Width_DT, hv_Height_DS, hv_Width_DS;
 
 		//参数设置
-		hv_start = -0.087;
-		hv_range = 0.174;
+		hv_start = -0.131;
+		hv_range = 0.262;
 
 		//模板size
 		hv_Height_DT = 200;
@@ -340,7 +340,7 @@ namespace D5R {
 				pError.Rz = -0.5 * pError.Rz;
 				pError.Py = 0.8 * pError.Py;
 				jError = KineHelper::InverseDifferential(pError, GetCurrentPose());
-				JointsMoveRelative({ static_cast<int>(jError.R1 * 100), 
+				JointsMoveRelative({ static_cast<int>(jError.R1 * 100),
 					static_cast<int>(jError.P2 * 1000000), 0, 0, 0 });
 
 				const int stepLength = 1000; // nm
