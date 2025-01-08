@@ -22,6 +22,7 @@ void Test_GetAndSaveImg(D5R::CameraTop* topCamera) {
     cv::namedWindow(win_name, cv::WINDOW_NORMAL);
     cv::resizeWindow(win_name, cv::Size(1295, 1024));
     cv::Mat img_top;
+    int count = 0;
     while (topCamera->Read(img_top)) {
         // cv::line(img_top, cv::Point(100, 1620), cv::Point(1800, 1620), cv::Scalar(0), 2);
         cv::imshow(win_name, img_top);
@@ -33,9 +34,19 @@ void Test_GetAndSaveImg(D5R::CameraTop* topCamera) {
             std::string filename =
                 "./image/1_7/topC_" + std::to_string(time(&t)) + ".png";
             cv::imwrite(filename, img_top);
-            // std::cout << count++ << std::endl;
             continue;
         }
+		if (key == 13) {
+            while (topCamera->Read(img_top)) {
+                cv::imshow(win_name, img_top);
+                std::string filename =
+                    "./image/1_8/topC_" + std::to_string(count++) + ".png";
+                cv::imwrite(filename, img_top);
+                if (cv::waitKey(1) == 13) {
+                    break;
+                }
+            }
+		}
     }
     cv::waitKey(0);
 }
