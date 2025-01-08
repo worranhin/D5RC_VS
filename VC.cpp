@@ -93,13 +93,15 @@ void VC::JawLibSegmentation(cv::Mat img, int index) {
 	{
 	case 1:
 	case 2:
-		cv::matchTemplate(img, _posTemplate_2, result, cv::TM_SQDIFF_NORMED);
+		cv::matchTemplate(img, _posTemplate_2, result, cv::TM_CCOEFF_NORMED);
 		cv::minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc);
 		// 测试匹配效果
-		//cv::rectangle(img, minLoc, cv::Point(minLoc.x + 280, minLoc.y + 280), cv::Scalar(0), 4);
+		//cv::rectangle(img, maxLoc, cv::Point(maxLoc.x + 280, maxLoc.y + 280), cv::Scalar(0), 4);
+		//cv::namedWindow("test", cv::WINDOW_NORMAL);
+		//cv::resizeWindow("test", cv::Size(1300, 1000));
 		//cv::imshow("test", img);
 		//cv::waitKey(0);
-		_roiPos = cv::Point2f(minLoc.x - 300.0f, minLoc.y + 300.0f);
+		_roiPos = cv::Point2f(maxLoc.x - 300.0f, maxLoc.y + 300.0f);
 		break;
 	case 3:
 	default:
@@ -268,13 +270,13 @@ double VC::GetVerticalDistance(cv::Mat img, int index) {
 		a = _ringLibLine_a;
 		b = _ringLibLine_b;
 	}
-	cv::matchTemplate(img, _clampBot.model, res, cv::TM_SQDIFF_NORMED);
+	cv::matchTemplate(img, _clampBot.model, res, cv::TM_CCOEFF_NORMED);
 	cv::minMaxLoc(res, &minVal, &maxVal, &minLoc, &maxLoc);
-	cv::Point2f minLoc_(minLoc.x, minLoc.y);
+	cv::Point2f maxLoc_(maxLoc.x, maxLoc.y);
 	double distance = 0;
 	for (int i = 0; i < _clampBot.pos.size(); ++i) {
-		distance += (abs(a * (_clampBot.pos[i].x + minLoc_.x) -
-			_clampBot.pos[i].y - minLoc_.y + b) / sqrt(a * a + 1));
+		distance += (abs(a * (_clampBot.pos[i].x + maxLoc_.x) -
+			_clampBot.pos[i].y - maxLoc_.y + b) / sqrt(a * a + 1));
 	}
 	distance /= _clampBot.pos.size();
 	// 测试效果
@@ -312,8 +314,9 @@ JawPos VC::GetJawPos(HalconCpp::HObject ho_img) {
 	hv_Width_DS = 150;
 
 	//设置历史变量
-	static HTuple hv_Last_Row_DL = 0.0, hv_Last_Col_DL = 0.0, hv_Last_Angle_DL = 0.0;
-	static HTuple hv_Last_Row_DR = 0.0, hv_Last_Col_DR = 0.0, hv_Last_Angle_DR = 0.0;
+	static HTuple hv_Last_Row_DL = 1000.0, hv_Last_Col_DL = 1000.0, hv_Last_Angle_DL = 0.0;
+	static HTuple hv_Last_Row_DR = 1000.0, hv_Last_Col_DR = 1000.0, hv_Last_Angle_DR = 0.0;
+	static bool firstTime = true;
 
 	HTuple hv_Row_DL, hv_Col_DL, hv_Angle_DL, hv_Score_DL;
 	HTuple hv_Row_DR, hv_Col_DR, hv_Angle_DR, hv_Score_DR;
@@ -321,64 +324,84 @@ JawPos VC::GetJawPos(HalconCpp::HObject ho_img) {
 	int flag = 0;
 
 	GenRectangle1(&ho_init_search_rect, _roiPos.y, _roiPos.x, 1500, _roiPos.x + 850);
-
-	GenRectangle2(&ho_search_ROI_DL, hv_Last_Row_DL, hv_Last_Col_DL, hv_Last_Angle_DL,
-		hv_Width_DS / 2, hv_Height_DS / 2);
-	GenRectangle2(&ho_search_ROI_DR, hv_Last_Row_DR, hv_Last_Col_DR, hv_Last_Angle_DR,
-		hv_Width_DS / 2, hv_Height_DS / 2);
-	ReduceDomain(ho_img, ho_search_ROI_DL, &ho_ROI_DL);
-	ReduceDomain(ho_img, ho_search_ROI_DR, &ho_ROI_DR);
-	FindShapeModel(ho_ROI_DL, _jawMid.temp_dl, hv_start, hv_range, 0.7, 1, 0.5, (HTuple("least_squares").Append("max_deformation 2")),
-		0, 0.9, &hv_Row_DL, &hv_Col_DL, &hv_Angle_DL, &hv_Score_DL);
-	FindShapeModel(ho_ROI_DR, _jawMid.temp_dr, hv_start, hv_range, 0.7, 1, 0.5, (HTuple("least_squares").Append("max_deformation 2")),
-		0, 0.9, &hv_Row_DR, &hv_Col_DR, &hv_Angle_DR, &hv_Score_DR);
-	if (hv_Score_DL.D() >= 0.7)
-	{
-		hv_Last_Row_DL = hv_Row_DL;
-		hv_Last_Col_DL = hv_Col_DL;
-		hv_Last_Angle_DL = hv_Angle_DL;
-	}
-	else
-	{
+	if (firstTime) {
 		ReduceDomain(ho_img, ho_init_search_rect, &ho_ImageReduced);
 		FindShapeModel(ho_ImageReduced, _jawMid.temp_dl, hv_start, hv_range, 0.7, 1, 0.5,
 			(HTuple("least_squares").Append("max_deformation 2")), 0, 0.9, &hv_Row_DL,
 			&hv_Col_DL, &hv_Angle_DL, &hv_Score_DL);
-		if (hv_Score_DL.D() >= 0.7)
+		ReduceDomain(ho_img, ho_init_search_rect, &ho_ImageReduced);
+		FindShapeModel(ho_ImageReduced, _jawMid.temp_dr, hv_start, hv_range, 0.7, 1, 0.5,
+			(HTuple("least_squares").Append("max_deformation 2")), 0, 0.9, &hv_Row_DR,
+			&hv_Col_DR, &hv_Angle_DR, &hv_Score_DR);
+
+		hv_Last_Row_DL = hv_Row_DL;
+		hv_Last_Col_DL = hv_Col_DL;
+		hv_Last_Angle_DL = hv_Angle_DL;
+		hv_Last_Row_DR = hv_Row_DR;
+		hv_Last_Col_DR = hv_Col_DR;
+		hv_Last_Angle_DR = hv_Angle_DR;
+		firstTime = false;
+	}
+	else {
+
+		GenRectangle2(&ho_search_ROI_DL, hv_Last_Row_DL, hv_Last_Col_DL, hv_Last_Angle_DL,
+			hv_Width_DS / 2, hv_Height_DS / 2);
+		GenRectangle2(&ho_search_ROI_DR, hv_Last_Row_DR, hv_Last_Col_DR, hv_Last_Angle_DR,
+			hv_Width_DS / 2, hv_Height_DS / 2);
+		ReduceDomain(ho_img, ho_search_ROI_DL, &ho_ROI_DL);
+		ReduceDomain(ho_img, ho_search_ROI_DR, &ho_ROI_DR);
+		FindShapeModel(ho_ROI_DL, _jawMid.temp_dl, hv_start, hv_range, 0.7, 1, 0.5, (HTuple("least_squares").Append("max_deformation 2")),
+			0, 0.9, &hv_Row_DL, &hv_Col_DL, &hv_Angle_DL, &hv_Score_DL);
+		FindShapeModel(ho_ROI_DR, _jawMid.temp_dr, hv_start, hv_range, 0.7, 1, 0.5, (HTuple("least_squares").Append("max_deformation 2")),
+			0, 0.9, &hv_Row_DR, &hv_Col_DR, &hv_Angle_DR, &hv_Score_DR);
+		if (hv_Score_DL.Length() > 0 && hv_Score_DL.D() >= 0.7)
 		{
 			hv_Last_Row_DL = hv_Row_DL;
 			hv_Last_Col_DL = hv_Col_DL;
 			hv_Last_Angle_DL = hv_Angle_DL;
 		}
-		else {
-			flag++;
+		else
+		{
+			ReduceDomain(ho_img, ho_init_search_rect, &ho_ImageReduced);
+			FindShapeModel(ho_ImageReduced, _jawMid.temp_dl, hv_start, hv_range, 0.7, 1, 0.5,
+				(HTuple("least_squares").Append("max_deformation 2")), 0, 0.9, &hv_Row_DL,
+				&hv_Col_DL, &hv_Angle_DL, &hv_Score_DL);
+			if (hv_Score_DL.Length() > 0 && hv_Score_DL.D() >= 0.7)
+			{
+				hv_Last_Row_DL = hv_Row_DL;
+				hv_Last_Col_DL = hv_Col_DL;
+				hv_Last_Angle_DL = hv_Angle_DL;
+			}
+			else {
+				flag++;
+			}
 		}
-	}
-	if (hv_Score_DR.D() >= 0.7)
-	{
-		hv_Last_Row_DR = hv_Row_DR;
-		hv_Last_Col_DR = hv_Col_DR;
-		hv_Last_Angle_DR = hv_Angle_DR;
-	}
-	else
-	{
-		ReduceDomain(ho_img, ho_init_search_rect, &ho_ImageReduced);
-		FindShapeModel(ho_ImageReduced, _jawMid.temp_dr, hv_start, hv_range, 0.7, 1, 0.5,
-			(HTuple("least_squares").Append("max_deformation 2")), 0, 0.9, &hv_Row_DR,
-			&hv_Col_DR, &hv_Angle_DR, &hv_Score_DR);
-		if (hv_Score_DR.D() >= 0.7)
+		if (hv_Score_DR.Length() > 0 && hv_Score_DR.D() >= 0.7)
 		{
 			hv_Last_Row_DR = hv_Row_DR;
 			hv_Last_Col_DR = hv_Col_DR;
 			hv_Last_Angle_DR = hv_Angle_DR;
 		}
-		else {
-			flag++;
+		else
+		{
+			ReduceDomain(ho_img, ho_init_search_rect, &ho_ImageReduced);
+			FindShapeModel(ho_ImageReduced, _jawMid.temp_dr, hv_start, hv_range, 0.7, 1, 0.5,
+				(HTuple("least_squares").Append("max_deformation 2")), 0, 0.9, &hv_Row_DR,
+				&hv_Col_DR, &hv_Angle_DR, &hv_Score_DR);
+			if (hv_Score_DR.Length() > 0 && hv_Score_DR.D() >= 0.7)
+			{
+				hv_Last_Row_DR = hv_Row_DR;
+				hv_Last_Col_DR = hv_Col_DR;
+				hv_Last_Angle_DR = hv_Angle_DR;
+			}
+			else {
+				flag++;
+			}
 		}
 	}
 	HTuple hv_Angle = (hv_Last_Angle_DR + hv_Last_Angle_DL) / 2;
 	HTuple hv_Row = (hv_Last_Row_DL + hv_Last_Row_DR) * 0.5 - 150;
-	HTuple hv_Col = hv_Last_Col_DL * 0.45 + hv_Last_Col_DR * 0.55;
+	HTuple hv_Col = hv_Last_Col_DL * 0.5 + hv_Last_Col_DR * 0.5;
 
 	return { hv_Col.D(), hv_Row.D(),hv_Angle.D(), flag };
 }
@@ -410,8 +433,8 @@ TaskSpaceError VC::GetTaskSpaceError(cv::Mat img, MatchingMode m) {
 	cv::namedWindow("test", cv::WINDOW_NORMAL);
 	cv::resizeWindow("test", cv::Size(1300, 1000));
 	cv::Point2f h_1(jawPos.x, jawPos.y);
-	int h_2_x = static_cast<int>(h_1.x + 100 * cos(jawPos.angle + CV_PI / 2));
-	int h_2_y = static_cast<int>(h_1.y + 100 * sin(jawPos.angle + CV_PI / 2));
+	int h_2_x = static_cast<int>(h_1.x - 100 * cos(jawPos.angle + CV_PI / 2));
+	int h_2_y = static_cast<int>(h_1.y - 100 * sin(jawPos.angle + CV_PI / 2));
 	cv::line(img, h_1, cv::Point(h_2_x, h_2_y), cv::Scalar(0), 4);
 	cv::line(img, clampPos[0], clampPos[1], cv::Scalar(0), 4);
 	cv::imshow("test", img);
