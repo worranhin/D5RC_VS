@@ -237,10 +237,10 @@ void Test_GetSIFTParam(cv::Mat model, D5R::ModelType m) {
         filename_descriptors = "../test/debug/yml/Descriptors_Jaw.yml";
     }
     else {
-        filename_keypoint = "../test/debug/yml/KeyPoints_Clamp.yml";
-        filename_descriptors = "../test/debug/yml/Descriptors_Clamp.yml";
+        filename_keypoint = "./image/1_7/KeyPoints_Clamp.yml";
+        filename_descriptors = "./image/1_7/Descriptors_Clamp.yml";
     }
-    cv::Ptr<cv::SIFT> sift = cv::SIFT::create();
+    cv::Ptr<cv::SIFT> sift = cv::SIFT::create(400);
     std::vector<cv::KeyPoint> keyPoints_Model;
     sift->detect(model, keyPoints_Model);
     cv::FileStorage fs1(filename_keypoint, cv::FileStorage::WRITE);
@@ -326,23 +326,22 @@ void Test_Match(cv::Mat image, D5R::ModelType m) {
  * @param img
  */
 void Test_GetClampTemplate(cv::Mat img) {
-    // cv::namedWindow(win_name, cv::WINDOW_NORMAL);
-    // cv::resizeWindow(win_name, cv::Size(1250, 1025));
+     //cv::namedWindow(win_name, cv::WINDOW_NORMAL);
+     //cv::resizeWindow(win_name, cv::Size(1250, 1025));
+     //cv::Point2f roiP(1600, 900);
+     //cv::Rect roi = cv::Rect(roiP, cv::Size(650, 1000));
+     //cv::Mat roiImg = img(roi).clone();
+     //cv::rectangle(img, roi, cv::Scalar(0), 4);
+     //cv::imshow(win_name, img);
+     //cv::waitKey(0);
+     //cv::imwrite("./image/1_7/clamp.png", roiImg);
+     //return;
 
-    // cv::Point2f roiP(1300, 900);
-    // cv::Rect roi = cv::Rect(roiP, cv::Size(650, 1000));
-    // cv::Mat roiImg = img(roi).clone();
-    // cv::rectangle(img, roi, cv::Scalar(0), 4);
-    // cv::imshow(win_name, img);
-    // cv::waitKey(0);
-    // cv::imwrite("../test/debug/image/output/clamp.png", roiImg);
-    // return;
-
-    cv::Rect roi(0, 0, 650, 700);
-    cv::Mat roiImg = img(roi).clone();
-    // cv::imshow("test",roiImg);
-    // cv::waitKey(0);
-    // return;
+     cv::Rect roi(0, 0, 650, 700);
+     cv::Mat roiImg = img(roi).clone();
+     //cv::imshow("test",roiImg);
+     //cv::waitKey(0);
+     //return;
 
     cv::Mat gray;
     cv::cvtColor(roiImg, gray, cv::COLOR_BGR2GRAY);
@@ -356,19 +355,19 @@ void Test_GetClampTemplate(cv::Mat img) {
     cv::Point roiPos_right(450, 0);
     cv::Rect roi_right = cv::Rect(roiPos_right, cv::Size(200, 450));
     cv::Mat imgRoi_right = Imgblur(roi_right).clone();
-    // cv::imshow("test", imgRoi_left);
-    // cv::waitKey(0);
-    // cv::imshow("test", imgRoi_right);
-    // cv::waitKey(0);
-    // return;
+     //cv::imshow("test", imgRoi_left);
+     //cv::waitKey(0);
+     //cv::imshow("test", imgRoi_right);
+     //cv::waitKey(0);
+     //return;
     // 提取轮廓
     cv::Mat edges_left;
-    cv::Canny(imgRoi_left, edges_left, 50, 150);
+    cv::Canny(imgRoi_left, edges_left, 50, 120);
     std::vector<std::vector<cv::Point>> contours_left;
     cv::findContours(edges_left, contours_left, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
     std::vector<cv::Point> contour_left;
     for (auto& contour : contours_left) {
-        if (contour.size() < 50) {
+        if (contour.size() < 20) {
             continue;
         }
         contour_left.insert(contour_left.end(), contour.begin(), contour.end());
@@ -388,10 +387,10 @@ void Test_GetClampTemplate(cv::Mat img) {
 
     std::cout << contour_left.size() << std::endl;
     std::cout << contour_right.size() << std::endl;
-    // cv::imshow("test", edges_left);
-    // cv::waitKey(0);
-    // cv::imshow("test", edges_right);
-    // cv::waitKey(0);
+     cv::imshow("test", edges_left);
+     cv::waitKey(0);
+     cv::imshow("test", edges_right);
+     cv::waitKey(0);
     // return;
 
     cv::Mat black_left = cv::Mat(imgRoi_left.size(), imgRoi_left.type(), cv::Scalar::all(0));
@@ -417,20 +416,20 @@ void Test_GetClampTemplate(cv::Mat img) {
         }
         cv::line(black_right, hull_right[hull_right.size() - 1], hull_right[0], cv::Scalar(255), 2);
     }
-    // cv::imshow("test", black_left);
-    // cv::waitKey(0);
-    // cv::imshow("test", black_right);
-    // cv::waitKey(0);
+     cv::imshow("test", black_left);
+     cv::waitKey(0);
+     cv::imshow("test", black_right);
+     cv::waitKey(0);
     // return;
 
     // 霍夫直线拟合
     std::vector<cv::Vec4i> lines_left;
-    cv::HoughLinesP(black_left, lines_left, 1, CV_PI / 180, 100, 375, 20);
+    cv::HoughLinesP(black_left, lines_left, 1, CV_PI / 180, 100, 310, 20);
     std::cout << lines_left.size() << std::endl;
     std::vector<cv::Vec4i> lines_right;
-    cv::HoughLinesP(black_right, lines_right, 1, CV_PI / 180, 100, 375, 20);
+    cv::HoughLinesP(black_right, lines_right, 1, CV_PI / 180, 100, 310, 20);
     std::cout << lines_right.size() << std::endl;
-    // return;
+     //return;
     // 绘制直线
     // 2,3
     for (auto& line : lines_left) {
@@ -443,8 +442,8 @@ void Test_GetClampTemplate(cv::Mat img) {
         float angle_right = static_cast<float>(atan2f((line[1] - line[3] - 0.0f), (line[0] - line[2] - 2.0f)) * (-180) / CV_PI);
         cv::putText(img, std::to_string(angle_right), cv::Point(line[0], line[1]) + roiPos_right, cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255));
     }
-    cv::Point2f up = 0.5 * (cv::Point(lines_right[0][0], lines_right[0][1]) + cv::Point(lines_left[0][2], lines_left[0][3]) + roiPos_right);
-    cv::Point2f down = 0.5 * (cv::Point(lines_right[0][2] + 2, lines_right[0][3]) + cv::Point(lines_left[0][0], lines_left[0][1]) + roiPos_right);
+    cv::Point2f up = 0.5 * (cv::Point(lines_right[0][0] + 1, lines_right[0][1]) + cv::Point(lines_left[0][0], lines_left[0][1]) + roiPos_right);
+    cv::Point2f down = 0.5 * (cv::Point(lines_right[0][2] + 1, lines_right[0][3]) + cv::Point(lines_left[0][2], lines_left[0][3]) + roiPos_right);
     down = up - 0.3 * (up - down);
     cv::line(img, up, down, cv::Scalar(0, 0, 255), 2);
     float angle = static_cast<float>(atan2f((up.y - down.y), (up.x - down.x)) * (-180) / CV_PI);

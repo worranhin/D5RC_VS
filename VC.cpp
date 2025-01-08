@@ -4,8 +4,8 @@ VC::VC() {
 	// topC
 	// ¼ÐÇ¯Ä£°å
 	_clamp.img = cv::imread("./model/clampTemplate/clamp.png", 0);
-	_clamp.center = cv::Point2f(330.0f, 29.0f);
-	_clamp.point = cv::Point2f(331.2f, 149.3f);
+	_clamp.center = cv::Point2f(324.0f, 119.0f);
+	_clamp.point = cv::Point2f(328.2f, 212.9f);
 	cv::FileStorage fs1("./model/clampTemplate/KeyPoints_Clamp.yml", cv::FileStorage::READ);
 	fs1["keypoints"] >> _clamp.keypoints;
 	fs1.release();
@@ -278,15 +278,15 @@ double VC::GetVerticalDistance(cv::Mat img, int index) {
 	}
 	distance /= _clampBot.pos.size();
 	// ²âÊÔÐ§¹û
-	//cv::rectangle(img, minLoc_, cv::Point2f(minLoc_.x + _clampBot.model.size().width, 
-	//	minLoc_.y + _clampBot.model.size().height), cv::Scalar(255), 4);
-	//cv::line(img, cv::Point2f(50, 50 * a + b), 
-	//	cv::Point2f(2000, 2000 * a + b), cv::Scalar(0), 4);
-	//cv::namedWindow("a", cv::WINDOW_NORMAL);
-	//cv::resizeWindow("a", cv::Size(1295, 1024));
-	//cv::imshow("a", img);
-	//cv::waitKey(0);
-	return -distance * _mapParam + 0.3;
+	cv::rectangle(img, minLoc_, cv::Point2f(minLoc_.x + _clampBot.model.size().width, 
+		minLoc_.y + _clampBot.model.size().height), cv::Scalar(255), 4);
+	cv::line(img, cv::Point2f(50, 50 * a + b), 
+		cv::Point2f(2000, 2000 * a + b), cv::Scalar(0), 4);
+	cv::namedWindow("a", cv::WINDOW_NORMAL);
+	cv::resizeWindow("a", cv::Size(1295, 1024));
+	cv::imshow("a", img);
+	cv::waitKey(0);
+	return -distance * _mapParam + 0.35;
 
 }
 

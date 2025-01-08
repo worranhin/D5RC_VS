@@ -31,9 +31,9 @@ int main() {
      //cvk->GotoJawPlatform();
      //cvk->GotoMaterialPlatform();
 
-
-     
-  //   cv::Mat img = cv::imread("./image/1_7/botC_1736238491.png", 0);
+     //cv::Mat img = cv::imread("./image/1_7/clamp.png", 0);
+	 //Test_GetClampTemplate(img);
+	 //Test_GetSIFTParam(img, D5R::CLAMP);   
 	 //VC vc;
 	 //vc.GetHorizontalLine(img, 1);
   //   double h = vc.GetVerticalDistance(img, 1);
@@ -49,7 +49,12 @@ int main() {
   //   cv::Mat img;
 	 //robot.topCamera->Read(img);
 	 //Test_GetPosTemplate(img);
-     robot.VCJawChange();
+     try {
+         robot.VCJawChange();
+     }
+     catch (D5R::RobotException &e) {
+         std::cout << e.what() << std::endl;
+     }
 
      //Test_GetAndSaveImg(robot.topCamera);
      //Test_GetAndSaveImg(robot.botCamera);

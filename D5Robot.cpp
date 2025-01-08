@@ -13,7 +13,7 @@
 
 namespace D5R {
 
-	Joints JAWPOINT{ 0, 0, 7500000, 5000000, 0 }; // 钳口位置，需要实验确定
+	Joints JAWPOINT{ 0, -2000000, 9500000, 6000000, 0 }; // 钳口位置，需要实验确定
 
 	D5Robot::D5Robot() {}
 
@@ -214,7 +214,7 @@ namespace D5R {
 
 		// 初始位置
 		JointsMoveAbsolute(JAWPOINT);
-		Sleep(2000);
+		Sleep(5000);
 
 		VC vc;
 		HalconCpp::HObject ho_search_ROI_DL, ho_search_ROI_DR, ho_ROI_DL, ho_ROI_DR;
@@ -292,7 +292,7 @@ namespace D5R {
 			int n = static_cast<int>(std::max(abs(pError.Px), abs(pError.Py)) / 0.01);
 			jError = KineHelper::InverseDifferential(pError, GetCurrentPose());
 			JointsMoveRelative(jError.ToControlJoint());
-			Sleep(20 * n + 250);
+			Sleep(17 * n + 350);
 			topCamera->Read(img);
 			clampPos = vc.SIFT(img, Models::CLAMP);
 			clampAngle = static_cast<float>(atan2f(clampPos[0].y - clampPos[1].y, clampPos[0].x - clampPos[1].x) * (-180) / CV_PI);
@@ -302,6 +302,7 @@ namespace D5R {
 					   (clampAngle - hv_Angle.D() * 180 / CV_PI - 90) };
 		}
 
+		//return;
 
 		cv::Mat img_2;
 		botCamera->Read(img_2);
@@ -335,7 +336,7 @@ namespace D5R {
 			cv::imshow("test", img);
 			cv::waitKey(0);
 
-			if (flag != 2) {
+ 			if (flag != 2) {
 				pError.Px = 0.4 * pError.Px;
 				pError.Rz = -0.5 * pError.Rz;
 				pError.Py = 0.8 * pError.Py;
