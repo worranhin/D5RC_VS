@@ -55,11 +55,11 @@ struct TaskSpaceError {
 };
 
 
-class VC
+class VisualController
 {
 public:
-	VC();
-	~VC();
+	VisualController();
+	~VisualController();
 	HalconCpp::HObject Mat2HImage(cv::Mat img);
 	cv::Mat HImage2Mat(HalconCpp::HObject img);
 	void JawLibSegmentation(cv::Mat img, int index);

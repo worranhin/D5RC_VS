@@ -24,7 +24,7 @@ int main() {
 	 //robot.JointsMoveAbsolute({0,  0, 0,5000000, 0});
    // robot.JointsMoveRelative({0, 0, 1000000, 0, 0});
    // robot.JointsMoveAbsolute({0, 0, 7500000, 0, 0});
-	VC vc;
+	VisualController vc;
 	//cv::Mat d = cv::imread("C:/Users/Administrator/Desktop/12_30/topC_0.png", 0);
 	cv::Mat d = cv::imread("./image/1_8/topC_0.png", 0);
 	vc.JawLibSegmentation(d, 2);

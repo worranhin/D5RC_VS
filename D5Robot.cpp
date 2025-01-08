@@ -216,7 +216,7 @@ namespace D5R {
 		JointsMoveAbsolute(JAWPOINT);
 		Sleep(5000);
 
-		VC vc;
+		VisualController vc;
 		HalconCpp::HObject ho_search_ROI_DL, ho_search_ROI_DR, ho_ROI_DL, ho_ROI_DR;
 		HalconCpp::HTuple hv_start, hv_range, hv_Height_DT, hv_Width_DT, hv_Height_DS, hv_Width_DS;
 
@@ -336,7 +336,7 @@ namespace D5R {
 			cv::imshow("test", img);
 			cv::waitKey(0);
 
- 			if (flag != 2) {
+			if (flag != 2) {
 				pError.Px = 0.4 * pError.Px;
 				pError.Rz = -0.5 * pError.Rz;
 				pError.Py = 0.8 * pError.Py;

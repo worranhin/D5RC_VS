@@ -1,6 +1,6 @@
 #include "VC.h"
 
-VC::VC() {
+VisualController::VisualController() {
 	// topC
 	// 夹钳模板
 	_clamp.img = cv::imread("./model/clampTemplate/clamp.png", 0);
@@ -36,14 +36,14 @@ VC::VC() {
 	// 图像与显示映射参数
 	_mapParam = 0.00945084;
 }
-VC::~VC() {}
+VisualController::~VisualController() {}
 
 /**
  * @brief 将OpenCV Mat格式的图片转换成Halcon HObject格式
  * @param img
  * @return
  */
-HalconCpp::HObject VC::Mat2HImage(cv::Mat img) {
+HalconCpp::HObject VisualController::Mat2HImage(cv::Mat img) {
 	if (img.empty() || img.channels() != 1) {
 		std::cout << "Error, invaid img" << std::endl;
 		return {};
@@ -62,7 +62,7 @@ HalconCpp::HObject VC::Mat2HImage(cv::Mat img) {
  * @param img
  * @return
  */
-cv::Mat VC::HImage2Mat(HalconCpp::HObject img) {
+cv::Mat VisualController::HImage2Mat(HalconCpp::HObject img) {
 	HalconCpp::HTuple channels;
 	HalconCpp::CountChannels(img, &channels);
 	if (channels.I() != 1) {
@@ -85,7 +85,7 @@ cv::Mat VC::HImage2Mat(HalconCpp::HObject img) {
  * @param img
  * @param index
  */
-void VC::JawLibSegmentation(cv::Mat img, int index) {
+void VisualController::JawLibSegmentation(cv::Mat img, int index) {
 	cv::Mat result;
 	cv::Point minLoc, maxLoc;
 	double minVal, maxVal;
@@ -114,7 +114,7 @@ void VC::JawLibSegmentation(cv::Mat img, int index) {
  * @param m
  * @return pst, 匹配失败则返回空
  */
-std::vector<cv::Point2f> VC::SIFT(cv::Mat img, Models m) {
+std::vector<cv::Point2f> VisualController::SIFT(cv::Mat img, Models m) {
 	cv::Mat model;
 	std::vector<cv::Point2f> modelPosition;
 	std::vector<cv::KeyPoint> keyPoints_Model;
@@ -196,7 +196,7 @@ std::vector<cv::Point2f> VC::SIFT(cv::Mat img, Models m) {
  * @param img
  * @param index 1：钳口库 2：物料台
  */
-void VC::GetHorizontalLine(cv::Mat img, int index) {
+void VisualController::GetHorizontalLine(cv::Mat img, int index) {
 	// 将钳口台下半部分遮住，防止干扰，具体使用根据钳口台与相机高度而定
 	cv::Point2f roiPos(200, 1500);
 	cv::Rect roi = cv::Rect(roiPos, cv::Size(2200, 548));
@@ -257,7 +257,7 @@ void VC::GetHorizontalLine(cv::Mat img, int index) {
  * @param index
  * @return
  */
-double VC::GetVerticalDistance(cv::Mat img, int index) {
+double VisualController::GetVerticalDistance(cv::Mat img, int index) {
 	cv::Mat res;
 	cv::Point minLoc, maxLoc;
 	double minVal, maxVal;
@@ -296,7 +296,7 @@ double VC::GetVerticalDistance(cv::Mat img, int index) {
  * @param ho_img
  * @return {x, y, angle, flag}
  */
-JawPos VC::GetJawPos(HalconCpp::HObject ho_img) {
+JawPos VisualController::GetJawPos(HalconCpp::HObject ho_img) {
 	using namespace HalconCpp;
 	HObject ho_search_ROI_DL, ho_search_ROI_DR, ho_ROI_DL, ho_ROI_DR, ho_init_search_rect, ho_ImageReduced;
 	HTuple hv_start, hv_range, hv_Height_DT, hv_Width_DT, hv_Height_DS, hv_Width_DS;
@@ -405,8 +405,13 @@ JawPos VC::GetJawPos(HalconCpp::HObject ho_img) {
 
 	return { hv_Col.D(), hv_Row.D(),hv_Angle.D(), flag };
 }
-
-TaskSpaceError VC::GetTaskSpaceError(cv::Mat img, MatchingMode m) {
+/**
+ * @brief
+ * @param img
+ * @param m
+ * @return
+ */
+TaskSpaceError VisualController::GetTaskSpaceError(cv::Mat img, MatchingMode m) {
 	std::vector<cv::Point2f> clampPos = SIFT(img, Models::CLAMP);
 	float clampAngle = static_cast<float>(atan2f(clampPos[0].y - clampPos[1].y, clampPos[0].x - clampPos[1].x) * (-180) / CV_PI);
 	HalconCpp::HObject ho_img = Mat2HImage(img);
@@ -445,12 +450,12 @@ TaskSpaceError VC::GetTaskSpaceError(cv::Mat img, MatchingMode m) {
 }
 
 // 类内变量接口
-Clamp VC::GetClamp() { return _clamp; }
+Clamp VisualController::GetClamp() { return _clamp; }
 
-Jaw VC::GetJaw() { return _jawMid; }
+Jaw VisualController::GetJaw() { return _jawMid; }
 
-cv::Point2f VC::GetROIPos() { return _roiPos; }
+cv::Point2f VisualController::GetROIPos() { return _roiPos; }
 
-cv::Point2f VC::GetRoughPosPoint() { return _roughPosPoint; }
+cv::Point2f VisualController::GetRoughPosPoint() { return _roughPosPoint; }
 
-double VC::GetMapParam() { return _mapParam; }
+double VisualController::GetMapParam() { return _mapParam; }
