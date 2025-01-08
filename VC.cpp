@@ -140,7 +140,7 @@ std::vector<cv::Point2f> VC::SIFT(cv::Mat img, Models m) {
 	cv::Mat ROI = img(roi).clone();
 
 	// SIFT特征点
-	cv::Ptr<cv::SIFT> sift = cv::SIFT::create(400);
+	cv::Ptr<cv::SIFT> sift = cv::SIFT::create();
 	std::vector<cv::KeyPoint> keyPoints_Img;
 	sift->detect(ROI, keyPoints_Img);
 	// 描述
@@ -207,7 +207,7 @@ void VC::GetHorizontalLine(cv::Mat img, int index) {
 	cv::threshold(gauss, bin, 180, 255, cv::THRESH_BINARY);
 	cv::Mat edge;
 	cv::Canny(bin, edge, 50, 150);
-	
+
 	//// 测试效果
 	//cv::imshow("test", ROI);
 	//cv::waitKey(0);
@@ -227,7 +227,7 @@ void VC::GetHorizontalLine(cv::Mat img, int index) {
 		sum_y += (line[1] + line[3] + 2 * roiPos.y);
 		sum_xy += ((line[0] + roiPos.x) * (line[1] + roiPos.y) + (line[2] + roiPos.x) * (line[3] + roiPos.y));
 		sum_x2 += ((line[0] + roiPos.x) * (line[0] + roiPos.x) + (line[2] + roiPos.x) * (line[2] + roiPos.x));
-		
+
 	}
 	float mean_x = sum_x / n;
 	float mean_y = sum_y / n;
@@ -278,18 +278,148 @@ double VC::GetVerticalDistance(cv::Mat img, int index) {
 	}
 	distance /= _clampBot.pos.size();
 	// 测试效果
-	cv::rectangle(img, minLoc_, cv::Point2f(minLoc_.x + _clampBot.model.size().width, 
-		minLoc_.y + _clampBot.model.size().height), cv::Scalar(255), 4);
-	cv::line(img, cv::Point2f(50, 50 * a + b), 
-		cv::Point2f(2000, 2000 * a + b), cv::Scalar(0), 4);
-	cv::namedWindow("a", cv::WINDOW_NORMAL);
-	cv::resizeWindow("a", cv::Size(1295, 1024));
-	cv::imshow("a", img);
-	cv::waitKey(0);
+	//cv::rectangle(img, minLoc_, cv::Point2f(minLoc_.x + _clampBot.model.size().width, 
+	//	minLoc_.y + _clampBot.model.size().height), cv::Scalar(255), 4);
+	//cv::line(img, cv::Point2f(50, 50 * a + b), 
+	//	cv::Point2f(2000, 2000 * a + b), cv::Scalar(0), 4);
+	//cv::namedWindow("a", cv::WINDOW_NORMAL);
+	//cv::resizeWindow("a", cv::Size(1295, 1024));
+	//cv::imshow("a", img);
+	//cv::waitKey(0);
 	return -distance * _mapParam + 0.35;
 
 }
+/**
+ * @brief 获取jaw中心定位信息
+ * @param ho_img
+ * @return {x, y, angle, flag}
+ */
+JawPos VC::GetJawPos(HalconCpp::HObject ho_img) {
+	using namespace HalconCpp;
+	HObject ho_search_ROI_DL, ho_search_ROI_DR, ho_ROI_DL, ho_ROI_DR, ho_init_search_rect, ho_ImageReduced;
+	HTuple hv_start, hv_range, hv_Height_DT, hv_Width_DT, hv_Height_DS, hv_Width_DS;
 
+	//参数设置
+	hv_start = -0.131;
+	hv_range = 0.262;
+
+	//模板size
+	hv_Height_DT = 200;
+	hv_Width_DT = 50;
+
+	//搜索size
+	hv_Height_DS = 300;
+	hv_Width_DS = 150;
+
+	//设置历史变量
+	static HTuple hv_Last_Row_DL = 0.0, hv_Last_Col_DL = 0.0, hv_Last_Angle_DL = 0.0;
+	static HTuple hv_Last_Row_DR = 0.0, hv_Last_Col_DR = 0.0, hv_Last_Angle_DR = 0.0;
+
+	HTuple hv_Row_DL, hv_Col_DL, hv_Angle_DL, hv_Score_DL;
+	HTuple hv_Row_DR, hv_Col_DR, hv_Angle_DR, hv_Score_DR;
+
+	int flag = 0;
+
+	GenRectangle1(&ho_init_search_rect, _roiPos.y, _roiPos.x, 1500, _roiPos.x + 850);
+
+	GenRectangle2(&ho_search_ROI_DL, hv_Last_Row_DL, hv_Last_Col_DL, hv_Last_Angle_DL,
+		hv_Width_DS / 2, hv_Height_DS / 2);
+	GenRectangle2(&ho_search_ROI_DR, hv_Last_Row_DR, hv_Last_Col_DR, hv_Last_Angle_DR,
+		hv_Width_DS / 2, hv_Height_DS / 2);
+	ReduceDomain(ho_img, ho_search_ROI_DL, &ho_ROI_DL);
+	ReduceDomain(ho_img, ho_search_ROI_DR, &ho_ROI_DR);
+	FindShapeModel(ho_ROI_DL, _jawMid.temp_dl, hv_start, hv_range, 0.7, 1, 0.5, (HTuple("least_squares").Append("max_deformation 2")),
+		0, 0.9, &hv_Row_DL, &hv_Col_DL, &hv_Angle_DL, &hv_Score_DL);
+	FindShapeModel(ho_ROI_DR, _jawMid.temp_dr, hv_start, hv_range, 0.7, 1, 0.5, (HTuple("least_squares").Append("max_deformation 2")),
+		0, 0.9, &hv_Row_DR, &hv_Col_DR, &hv_Angle_DR, &hv_Score_DR);
+	if (hv_Score_DL.D() >= 0.7)
+	{
+		hv_Last_Row_DL = hv_Row_DL;
+		hv_Last_Col_DL = hv_Col_DL;
+		hv_Last_Angle_DL = hv_Angle_DL;
+	}
+	else
+	{
+		ReduceDomain(ho_img, ho_init_search_rect, &ho_ImageReduced);
+		FindShapeModel(ho_ImageReduced, _jawMid.temp_dl, hv_start, hv_range, 0.7, 1, 0.5,
+			(HTuple("least_squares").Append("max_deformation 2")), 0, 0.9, &hv_Row_DL,
+			&hv_Col_DL, &hv_Angle_DL, &hv_Score_DL);
+		if (hv_Score_DL.D() >= 0.7)
+		{
+			hv_Last_Row_DL = hv_Row_DL;
+			hv_Last_Col_DL = hv_Col_DL;
+			hv_Last_Angle_DL = hv_Angle_DL;
+		}
+		else {
+			flag++;
+		}
+	}
+	if (hv_Score_DR.D() >= 0.7)
+	{
+		hv_Last_Row_DR = hv_Row_DR;
+		hv_Last_Col_DR = hv_Col_DR;
+		hv_Last_Angle_DR = hv_Angle_DR;
+	}
+	else
+	{
+		ReduceDomain(ho_img, ho_init_search_rect, &ho_ImageReduced);
+		FindShapeModel(ho_ImageReduced, _jawMid.temp_dr, hv_start, hv_range, 0.7, 1, 0.5,
+			(HTuple("least_squares").Append("max_deformation 2")), 0, 0.9, &hv_Row_DR,
+			&hv_Col_DR, &hv_Angle_DR, &hv_Score_DR);
+		if (hv_Score_DR.D() >= 0.7)
+		{
+			hv_Last_Row_DR = hv_Row_DR;
+			hv_Last_Col_DR = hv_Col_DR;
+			hv_Last_Angle_DR = hv_Angle_DR;
+		}
+		else {
+			flag++;
+		}
+	}
+	HTuple hv_Angle = (hv_Last_Angle_DR + hv_Last_Angle_DL) / 2;
+	HTuple hv_Row = (hv_Last_Row_DL + hv_Last_Row_DR) * 0.5 - 150;
+	HTuple hv_Col = hv_Last_Col_DL * 0.45 + hv_Last_Col_DR * 0.55;
+
+	return { hv_Col.D(), hv_Row.D(),hv_Angle.D(), flag };
+}
+
+TaskSpaceError VC::GetTaskSpaceError(cv::Mat img, MatchingMode m) {
+	std::vector<cv::Point2f> clampPos = SIFT(img, Models::CLAMP);
+	float clampAngle = static_cast<float>(atan2f(clampPos[0].y - clampPos[1].y, clampPos[0].x - clampPos[1].x) * (-180) / CV_PI);
+	HalconCpp::HObject ho_img = Mat2HImage(img);
+	JawPos jawPos = GetJawPos(ho_img);
+	TaskSpaceError res;
+	switch (m)
+	{
+	case FINE:
+		res = { (clampPos[0].y - jawPos.y) * _mapParam,
+				(clampPos[0].x - jawPos.x) * _mapParam,
+				 0, 0,
+				(clampAngle - jawPos.angle * 180 / CV_PI - 90) };
+		break;
+	case ROUGH:
+		res = { (clampPos[0].y - jawPos.y) * _mapParam,
+				(clampPos[0].x - GetROIPos().x - GetRoughPosPoint().x) * _mapParam,
+				 0, 0,
+				(clampAngle - jawPos.angle * 180 / CV_PI - 90) };
+		break;
+	default:
+		break;
+	}
+	// 测试
+	cv::namedWindow("test", cv::WINDOW_NORMAL);
+	cv::resizeWindow("test", cv::Size(1300, 1000));
+	cv::Point2f h_1(jawPos.x, jawPos.y);
+	int h_2_x = static_cast<int>(h_1.x + 100 * cos(jawPos.angle + CV_PI / 2));
+	int h_2_y = static_cast<int>(h_1.y + 100 * sin(jawPos.angle + CV_PI / 2));
+	cv::line(img, h_1, cv::Point(h_2_x, h_2_y), cv::Scalar(0), 4);
+	cv::line(img, clampPos[0], clampPos[1], cv::Scalar(0), 4);
+	cv::imshow("test", img);
+	cv::waitKey(0);
+
+	return res;
+
+}
 
 // 类内变量接口
 Clamp VC::GetClamp() { return _clamp; }

@@ -34,6 +34,25 @@ enum Models {
 	JAW_MAX
 };
 
+enum MatchingMode {
+	FINE,
+	ROUGH
+};
+
+struct JawPos {
+	double x;
+	double y;
+	double angle;
+	int flag;
+};
+
+struct TaskSpaceError {
+	double Px;
+	double Py;
+	double Pz;
+	double Ry;
+	double Rz;
+};
 
 
 class VC
@@ -47,6 +66,9 @@ public:
 	std::vector<cv::Point2f> SIFT(cv::Mat img, Models m);
 	void GetHorizontalLine(cv::Mat img, int index);
 	double GetVerticalDistance(cv::Mat img, int index);
+	JawPos GetJawPos(HalconCpp::HObject img);
+	TaskSpaceError GetTaskSpaceError(cv::Mat img, MatchingMode m);
+
 
 
 	// 变量接口

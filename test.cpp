@@ -9,57 +9,49 @@ const std::string port = "\\\\.\\COM16";
 const std::string port_cvk = "\\\\.\\COM10";
 
 int main() {
-    std::cout << "Hello Robot!" << std::endl;
-     D5R::D5Robot robot;
+	std::cout << "Hello Robot!" << std::endl;
+	//D5R::D5Robot robot;
 
-     robot.InitNator();
+	//robot.InitNator();
 
-     robot.InitRMD(port.c_str());
+	//robot.InitRMD(port.c_str());
 
-     robot.InitTopCamera();
+	//robot.InitTopCamera();
 
-     robot.InitBotCamera();
+	//robot.InitBotCamera();
 
-     //robot.JointsMoveAbsolute({0, 0, 7500000, 5000000, 0});
-      //robot.JointsMoveAbsolute({0,  0, 0,5000000, 0});
-    // robot.JointsMoveRelative({0, 0, 1000000, 0, 0});
-    // robot.JointsMoveAbsolute({0, 0, 7500000, 0, 0});
+	//robot.JointsMoveAbsolute({0, 0, 7500000, 5000000, 0});
+	 //robot.JointsMoveAbsolute({0,  0, 0,5000000, 0});
+   // robot.JointsMoveRelative({0, 0, 1000000, 0, 0});
+   // robot.JointsMoveAbsolute({0, 0, 7500000, 0, 0});
+	VC vc;
+	cv::Mat d = cv::imread("C:/Users/Administrator/Desktop/12_30/topC_0.png", 0);
+	vc.JawLibSegmentation(d, 2);
+	TaskSpaceError pError;
+	for (int i = 200; i < 900; i += 10) {
+		std::string imgname = "C:/Users/Administrator/Desktop/12_30/topC_" + std::to_string(i) + ".png";
+		cv::Mat img = cv::imread(imgname, 0);
+		pError = vc.GetTaskSpaceError(img, FINE);
+		std::cout << i << ": " << std::endl;
+		std::cout << "Px: " << pError.Px << std::endl;
+		std::cout << "Py: " << pError.Py << std::endl;
+		std::cout << "Rz: " << pError.Rz << std::endl;
+		std::cout << std::endl;
+	}
 
-     // ²âÊÔCVKµç»ú
-     //D5R::SerialPort* handleCVK = new D5R::SerialPort(port_cvk.c_str());
-     //D5R::CVK* cvk = new D5R::CVK(handleCVK->GetHandle());
-     //cvk->GotoJawPlatform();
-     //cvk->GotoMaterialPlatform();
 
-     //cv::Mat img = cv::imread("./image/1_7/clamp.png", 0);
-	 //Test_GetClampTemplate(img);
-	 //Test_GetSIFTParam(img, D5R::CLAMP);   
-	 //VC vc;
-	 //vc.GetHorizontalLine(img, 1);
-  //   double h = vc.GetVerticalDistance(img, 1);
-	 //std::cout << h << std::endl;
-     //// Test_GetJawCircleCenter(img);
-     //if (img.empty()) {
-     //    std::cerr << "error" << std::endl;
-     //    return -1;
-     //}
-     //cv::imshow("ssdf", img);
-     //cv::waitKey(0);
 
-  //   cv::Mat img;
-	 //robot.topCamera->Read(img);
-	 //Test_GetPosTemplate(img);
-     try {
-         robot.VCJawChange();
-     }
-     catch (D5R::RobotException &e) {
-         std::cout << e.what() << std::endl;
-     }
 
-     //Test_GetAndSaveImg(robot.topCamera);
-     //Test_GetAndSaveImg(robot.botCamera);
-    // cv::Mat img = cv::imread("../image/12_10/topC_404.png");
-    // Test_Deformation_SURF(img);
 
-    return 0;
+	//try {
+	//    robot.VCJawChange();
+	//}
+	//catch (D5R::RobotException &e) {
+	//    std::cout << e.what() << std::endl;
+	//}
+
+	//Test_GetAndSaveImg(robot.topCamera);
+	//Test_GetAndSaveImg(robot.botCamera);
+
+	return 0;
 }
